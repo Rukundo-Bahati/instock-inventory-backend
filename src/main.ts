@@ -9,7 +9,7 @@ async function bootstrap() {
       'http://localhost:5173',
       'http://localhost:8081',
       'http://localhost:3001',
-      'https://instock-inventory-frontend.onrender.com',
+      'https://instock-inventory-pro.vercel.app/',
       'https://instock-back.onrender.com',
       /\.onrender\.com$/,
     ],
