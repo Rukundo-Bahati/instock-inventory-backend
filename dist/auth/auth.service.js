@@ -46,16 +46,19 @@ exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("../users/users.service");
 const jwt_1 = require("@nestjs/jwt");
+const logs_service_1 = require("../logs/logs.service");
 const bcrypt = __importStar(require("bcrypt"));
 let AuthService = class AuthService {
     usersService;
     jwtService;
-    constructor(usersService, jwtService) {
+    logsService;
+    constructor(usersService, jwtService, logsService) {
         this.usersService = usersService;
         this.jwtService = jwtService;
+        this.logsService = logsService;
     }
-    async validateUser(username, pass) {
-        const user = await this.usersService.findOne(username);
+    async validateUser(email, pass) {
+        const user = await this.usersService.findOneByEmail(email);
         if (user && (await bcrypt.compare(pass, user.password))) {
             const { password, ...result } = user;
             return result;
@@ -63,23 +66,58 @@ let AuthService = class AuthService {
         return null;
     }
     async login(user) {
-        const payload = { username: user.username, sub: user.id, roles: user.roles };
+        const payload = { email: user.email, sub: user.id, roles: user.roles };
+        await this.logsService.create({
+            userId: user.id,
+            action: 'login',
+            details: `User logged in`,
+            userEmail: user.email,
+            userName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+            userRole: user.roles,
+        });
         return {
             access_token: this.jwtService.sign(payload),
         };
     }
     async register(user) {
+        const existingUser = await this.usersService.findOneByEmail(user.email);
+        if (existingUser) {
+            throw new common_1.ConflictException('Email already exists');
+        }
         const hashedPassword = await bcrypt.hash(user.password, 10);
-        return this.usersService.create({
-            ...user,
+        const newUser = await this.usersService.create({
+            email: user.email,
             password: hashedPassword,
+            firstName: user.firstName,
+            lastName: user.lastName,
         });
+        await this.logsService.create({
+            userId: newUser.id,
+            action: 'register',
+            details: `New user registered`,
+            userEmail: newUser.email,
+            userName: `${newUser.firstName || ''} ${newUser.lastName || ''}`.trim() || newUser.email,
+            userRole: newUser.roles,
+        });
+        return newUser;
+    }
+    async logout(user) {
+        await this.logsService.create({
+            userId: user.id,
+            action: 'logout',
+            details: `User logged out`,
+            userEmail: user.email,
+            userName: user.email,
+            userRole: user.roles,
+        });
+        return { message: 'Logged out successfully' };
     }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [users_service_1.UsersService,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        logs_service_1.LogsService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

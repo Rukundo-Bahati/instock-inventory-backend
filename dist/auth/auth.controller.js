@@ -14,11 +14,10 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const auth_service_1 = require("./auth.service");
 const local_auth_guard_1 = require("./local-auth.guard");
 const jwt_auth_guard_1 = require("./jwt-auth.guard");
-const roles_decorator_1 = require("./roles.decorator");
-const roles_guard_1 = require("./roles.guard");
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
@@ -33,11 +32,18 @@ let AuthController = class AuthController {
     getProfile(req) {
         return req.user;
     }
+    async logout(req) {
+        return this.authService.logout(req.user);
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
     (0, common_1.UseGuards)(local_auth_guard_1.LocalAuthGuard),
     (0, common_1.Post)('login'),
+    (0, swagger_1.ApiOperation)({ summary: 'User login' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Return JWT access token.' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized.' }),
+    (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { email: { type: 'string' }, password: { type: 'string' } } } }),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -45,21 +51,40 @@ __decorate([
 ], AuthController.prototype, "login", null);
 __decorate([
     (0, common_1.Post)('register'),
+    (0, swagger_1.ApiOperation)({ summary: 'User registration' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'The user has been successfully created.' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad Request.' }),
+    (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { email: { type: 'string' }, password: { type: 'string' }, firstName: { type: 'string' }, lastName: { type: 'string' } } } }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "register", null);
 __decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('admin'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Get)('profile'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get user profile' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Return user profile.' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized.' }),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "getProfile", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)('logout'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'User logout' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'User logged out successfully.' }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "logout", null);
 exports.AuthController = AuthController = __decorate([
+    (0, swagger_1.ApiTags)('auth'),
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], AuthController);

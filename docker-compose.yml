@@ -1,4 +1,4 @@
-version: '3.8'
+# yaml-language-server: $schema=false
 
 services:
   app:

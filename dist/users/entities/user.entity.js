@@ -14,22 +14,37 @@ const typeorm_1 = require("typeorm");
 let User = class User {
     id;
     username;
+    email;
     password;
+    firstName;
+    lastName;
     roles;
 };
 exports.User = User;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)(),
-    __metadata("design:type", Number)
+    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
+    __metadata("design:type", String)
 ], User.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ unique: true, nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "username", void 0);
 __decorate([
     (0, typeorm_1.Column)({ unique: true }),
     __metadata("design:type", String)
-], User.prototype, "username", void 0);
+], User.prototype, "email", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "firstName", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "lastName", void 0);
 __decorate([
     (0, typeorm_1.Column)({ default: 'user' }),
     __metadata("design:type", String)

@@ -7,4 +7,7 @@ export declare class AuthController {
     }>;
     register(user: any): Promise<import("../users/entities/user.entity").User>;
     getProfile(req: any): any;
+    logout(req: any): Promise<{
+        message: string;
+    }>;
 }

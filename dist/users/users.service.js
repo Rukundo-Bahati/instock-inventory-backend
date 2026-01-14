@@ -17,23 +17,62 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./entities/user.entity");
+const logs_service_1 = require("../logs/logs.service");
 let UsersService = class UsersService {
     usersRepository;
-    constructor(usersRepository) {
+    logsService;
+    constructor(usersRepository, logsService) {
         this.usersRepository = usersRepository;
+        this.logsService = logsService;
     }
     async findOne(username) {
         return this.usersRepository.findOne({ where: { username } });
     }
+    async findOneByEmail(email) {
+        return this.usersRepository.findOne({ where: { email } });
+    }
     async create(user) {
         const newUser = this.usersRepository.create(user);
         return this.usersRepository.save(newUser);
+    }
+    async updateProfile(userId, updateData, userEmail, userName, userRole) {
+        const user = await this.usersRepository.findOne({ where: { id: userId } });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        if (updateData['currentPassword'] && updateData['newPassword']) {
+            const bcrypt = require('bcrypt');
+            const isPasswordValid = await bcrypt.compare(updateData['currentPassword'], user.password);
+            if (!isPasswordValid) {
+                throw new Error('Current password is incorrect');
+            }
+            user.password = await bcrypt.hash(updateData['newPassword'], 10);
+            delete updateData['currentPassword'];
+            delete updateData['newPassword'];
+        }
+        if (updateData.firstName !== undefined)
+            user.firstName = updateData.firstName;
+        if (updateData.lastName !== undefined)
+            user.lastName = updateData.lastName;
+        if (updateData.email !== undefined)
+            user.email = updateData.email;
+        const updatedUser = await this.usersRepository.save(user);
+        await this.logsService.create({
+            userId,
+            action: 'profile_update',
+            details: `Updated profile information`,
+            userEmail,
+            userName,
+            userRole,
+        });
+        return updatedUser;
     }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        logs_service_1.LogsService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map
