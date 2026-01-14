@@ -12,11 +12,19 @@ export class MovementsService {
     ) {}
 
     async findAll(): Promise<Movement[]> {
-        return this.movementsRepository.find({ order: { createdAt: 'DESC' }, take: 100 });
+        return this.movementsRepository.find({ 
+            relations: ['item'],
+            order: { createdAt: 'DESC' }, 
+            take: 100 
+        });
     }
 
     async findByItem(itemId: string): Promise<Movement[]> {
-        return this.movementsRepository.find({ where: { itemId }, order: { createdAt: 'DESC' } });
+        return this.movementsRepository.find({ 
+            where: { itemId }, 
+            relations: ['item'],
+            order: { createdAt: 'DESC' } 
+        });
     }
 
     async findOne(id: string): Promise<Movement> {

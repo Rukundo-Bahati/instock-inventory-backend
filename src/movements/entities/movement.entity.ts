@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Item } from '../../items/entities/item.entity';
 
 @Entity()
 export class Movement {
@@ -7,6 +8,10 @@ export class Movement {
 
     @Column({ type: 'uuid' })
     itemId: string;
+
+    @ManyToOne(() => Item)
+    @JoinColumn({ name: 'itemId' })
+    item: Item;
 
     @Column()
     type: string; // 'in', 'out', 'adjustment'
