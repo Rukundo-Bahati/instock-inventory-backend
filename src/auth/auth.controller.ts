@@ -16,7 +16,7 @@ export class AuthController {
     @ApiOperation({ summary: 'User login' })
     @ApiResponse({ status: 200, description: 'Return JWT access token.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
-    @ApiBody({ schema: { type: 'object', properties: { username: { type: 'string' }, password: { type: 'string' } } } })
+    @ApiBody({ schema: { type: 'object', properties: { email: { type: 'string' }, password: { type: 'string' } } } })
     async login(@Request() req) {
         return this.authService.login(req.user);
     }
@@ -25,18 +25,17 @@ export class AuthController {
     @ApiOperation({ summary: 'User registration' })
     @ApiResponse({ status: 201, description: 'The user has been successfully created.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
-    @ApiBody({ schema: { type: 'object', properties: { username: { type: 'string' }, password: { type: 'string' } } } })
+    @ApiBody({ schema: { type: 'object', properties: { email: { type: 'string' }, password: { type: 'string' }, firstName: { type: 'string' }, lastName: { type: 'string' } } } })
     async register(@Body() user: any) {
         return this.authService.register(user);
     }
 
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles('admin')
+    @UseGuards(JwtAuthGuard)
     @Get('profile')
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Get user profile (Admin only)' })
+    @ApiOperation({ summary: 'Get user profile' })
     @ApiResponse({ status: 200, description: 'Return user profile.' })
-    @ApiResponse({ status: 403, description: 'Forbidden.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
     getProfile(@Request() req) {
         return req.user;
     }

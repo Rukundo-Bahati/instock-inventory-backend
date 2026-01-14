@@ -6,8 +6,9 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3020:3020"
+      - "3001:3001"
     environment:
+      - PORT=3001
       - DB_HOST=db
       - DB_PORT=5432
       - DB_USERNAME=postgres
