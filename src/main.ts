@@ -4,7 +4,19 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  app.enableCors({
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:8081',
+      'http://localhost:3001',
+      'https://instock-inventory-frontend.onrender.com',
+      'https://instock-back.onrender.com',
+      /\.onrender\.com$/,
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
 
   const config = new DocumentBuilder()
     .setTitle('InStock Inventory Pro API')
