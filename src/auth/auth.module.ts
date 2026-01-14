@@ -7,10 +7,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
+import { LogsModule } from '../logs/logs.module';
 
 @Module({
   imports: [
     UsersModule,
+    LogsModule,
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,

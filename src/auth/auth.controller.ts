@@ -39,4 +39,13 @@ export class AuthController {
     getProfile(@Request() req) {
         return req.user;
     }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('logout')
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'User logout' })
+    @ApiResponse({ status: 200, description: 'User logged out successfully.' })
+    async logout(@Request() req) {
+        return this.authService.logout(req.user);
+    }
 }
