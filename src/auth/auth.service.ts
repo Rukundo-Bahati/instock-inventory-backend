@@ -16,30 +16,40 @@ export class AuthService {
     ) { }
 
     async validateUser(email: string, pass: string): Promise<any> {
-        const user = await this.usersService.findOneByEmail(email);
-        if (user && (await bcrypt.compare(pass, user.password))) {
-            const { password, ...result } = user;
-            return result;
+        try {
+            const user = await this.usersService.findOneByEmail(email);
+            if (user && (await bcrypt.compare(pass, user.password))) {
+                const { password, ...result } = user;
+                return result;
+            }
+            return null;
+        } catch (error) {
+            console.error('Validate user error:', error);
+            return null;
         }
-        return null;
     }
 
     async login(user: any) {
-        const payload = { email: user.email, sub: user.id, roles: user.roles };
-        
-        // Log the login action
-        await this.logsService.create({
-            userId: user.id,
-            action: 'login',
-            details: `User logged in`,
-            userEmail: user.email,
-            userName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
-            userRole: user.roles,
-        });
+        try {
+            const payload = { email: user.email, sub: user.id, roles: user.roles };
+            
+            // Log the login action
+            await this.logsService.create({
+                userId: user.id,
+                action: 'login',
+                details: `User logged in`,
+                userEmail: user.email,
+                userName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+                userRole: user.roles,
+            });
 
-        return {
-            access_token: this.jwtService.sign(payload),
-        };
+            return {
+                access_token: this.jwtService.sign(payload),
+            };
+        } catch (error) {
+            console.error('Login error:', error);
+            throw error;
+        }
     }
 
     async register(user: any) {

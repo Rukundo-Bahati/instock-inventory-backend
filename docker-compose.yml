@@ -8,6 +8,7 @@ services:
     ports:
       - "3001:3001"
     environment:
+      - NODE_ENV=development
       - PORT=3001
       - DB_HOST=db
       - DB_PORT=5432
@@ -20,7 +21,7 @@ services:
       - EMAIL_SECURE=false
       - EMAIL_USER=shammahhirwa19@gmail.com
       - EMAIL_PASS=zmsh owkx vipq otru
-      - FRONTEND_URL=https://instock-inventory-pro.vercel.app/
+      - FRONTEND_URL=https://instock-inventory-pro.vercel.app
     volumes:
       - ./src:/usr/src/app/src
       - ./package.json:/usr/src/app/package.json
