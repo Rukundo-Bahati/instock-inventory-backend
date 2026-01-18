@@ -4,6 +4,10 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  
+  // Add global error handling
+  app.useGlobalFilters();
+  
   app.enableCors({
     origin: [
       'http://localhost:5173',
@@ -28,6 +32,13 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(process.env.PORT ?? 3001, '0.0.0.0');
+  const port = process.env.PORT ?? 3001;
+  console.log(`🚀 Server starting on port ${port}`);
+  console.log(`📊 Environment: ${process.env.NODE_ENV}`);
+  console.log(`🔑 JWT Secret configured: ${!!process.env.JWT_SECRET}`);
+  console.log(`📧 Email configured: ${!!process.env.EMAIL_USER}`);
+  console.log(`🗄️ Database URL configured: ${!!process.env.DATABASE_URL}`);
+
+  await app.listen(port, '0.0.0.0');
 }
 bootstrap();
