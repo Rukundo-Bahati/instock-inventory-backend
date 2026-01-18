@@ -22,4 +22,10 @@ export class User {
 
     @Column({ default: 'user' })
     roles: string;
+
+    @Column({ nullable: true, type: 'varchar' })
+    resetToken: string | null;
+
+    @Column({ nullable: true, type: 'timestamp' })
+    resetTokenExpiry: Date | null;
 }

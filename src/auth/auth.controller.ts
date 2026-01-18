@@ -48,4 +48,30 @@ export class AuthController {
     async logout(@Request() req) {
         return this.authService.logout(req.user);
     }
+
+    @Post('forgot-password')
+    @ApiOperation({ summary: 'Request password reset' })
+    @ApiResponse({ status: 200, description: 'Password reset email sent successfully.' })
+    @ApiResponse({ status: 404, description: 'User not found.' })
+    @ApiBody({ schema: { type: 'object', properties: { email: { type: 'string' } } } })
+    async forgotPassword(@Body() body: { email: string }) {
+        return this.authService.forgotPassword(body.email);
+    }
+
+    @Post('reset-password')
+    @ApiOperation({ summary: 'Reset password with token' })
+    @ApiResponse({ status: 200, description: 'Password reset successfully.' })
+    @ApiResponse({ status: 400, description: 'Invalid or expired token.' })
+    @ApiBody({ schema: { type: 'object', properties: { token: { type: 'string' }, newPassword: { type: 'string' } } } })
+    async resetPassword(@Body() body: { token: string; newPassword: string }) {
+        return this.authService.resetPassword(body.token, body.newPassword);
+    }
+
+    @Post('test-email')
+    @ApiOperation({ summary: 'Test email configuration' })
+    @ApiResponse({ status: 200, description: 'Test email sent successfully.' })
+    @ApiBody({ schema: { type: 'object', properties: { email: { type: 'string' } } } })
+    async testEmail(@Body() body: { email: string }) {
+        return this.authService.testEmail(body.email);
+    }
 }

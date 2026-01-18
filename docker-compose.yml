@@ -16,8 +16,15 @@ services:
       - DB_DATABASE=instock
       - JWT_SECRET=supersecretkey
       - EMAIL_HOST=smtp.gmail.com
+      - EMAIL_PORT=587
+      - EMAIL_SECURE=false
       - EMAIL_USER=shammahhirwa19@gmail.com
-      - EMAIL_PASS="zmsh owkx vipq otru"
+      - EMAIL_PASS=zmsh owkx vipq otru
+      - FRONTEND_URL=https://instock-inventory-pro.vercel.app/
+    volumes:
+      - ./src:/usr/src/app/src
+      - ./package.json:/usr/src/app/package.json
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
     depends_on:
       - db
     networks:
