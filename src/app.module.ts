@@ -15,7 +15,10 @@ import { CompanyInfoModule } from './company-info/company-info.module';
 const databaseUrl =
   process.env.DATABASE_URL ||
   process.env.DATABASE_PRIVATE_URL ||
-  process.env.POSTGRES_URL;
+  process.env.POSTGRES_URL ||
+  (process.env.NODE_ENV === 'production'
+    ? 'postgresql://postgres:UTcbakeNsbpFIKhQWzbZccNxZudNfgKv@postgres.railway.internal:5432/railway'
+    : undefined);
 
 const hasDbHost =
   !!process.env.DB_HOST || !!process.env.PGHOST || !!process.env.POSTGRES_HOST;
