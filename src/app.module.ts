@@ -12,8 +12,25 @@ import { ItemsModule } from './items/items.module';
 import { LogsModule } from './logs/logs.module';
 import { CompanyInfoModule } from './company-info/company-info.module';
 
+const databaseUrl =
+  process.env.DATABASE_URL ||
+  process.env.DATABASE_PRIVATE_URL ||
+  process.env.POSTGRES_URL;
+
+if (
+  process.env.NODE_ENV === 'production' &&
+  !databaseUrl &&
+  !process.env.DB_HOST &&
+  !process.env.PGHOST &&
+  !process.env.POSTGRES_HOST
+) {
+  throw new Error(
+    'Database is not configured. Set DATABASE_URL (recommended) or DB_HOST/DB_PORT/DB_USERNAME/DB_PASSWORD/DB_DATABASE.'
+  );
+}
+
 console.log('=== ENV DEBUG ===');
-console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+console.log('DATABASE_URL exists:', !!databaseUrl);
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('PORT:', process.env.PORT);
 console.log('=================');
@@ -22,18 +39,19 @@ console.log('=================');
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      ...(process.env.DATABASE_URL
+      ...(databaseUrl
         ? {
-          url: process.env.DATABASE_URL,
+          url: databaseUrl,
           ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
         }
         : {
-          host: process.env.DB_HOST || 'localhost',
-          port: parseInt(process.env.DB_PORT || '5432', 10),
-          username: process.env.DB_USERNAME || 'postgres',
-          password: process.env.DB_PASSWORD || 'postgres',
-          database: process.env.DB_DATABASE || 'instock',
-          ssl: false,
+          host: process.env.DB_HOST || process.env.PGHOST || process.env.POSTGRES_HOST || 'localhost',
+          port: parseInt(process.env.DB_PORT || process.env.PGPORT || process.env.POSTGRES_PORT || '5432', 10),
+          username: process.env.DB_USERNAME || process.env.PGUSER || process.env.POSTGRES_USER || 'postgres',
+          password:
+            process.env.DB_PASSWORD || process.env.PGPASSWORD || process.env.POSTGRES_PASSWORD || 'postgres',
+          database: process.env.DB_DATABASE || process.env.PGDATABASE || process.env.POSTGRES_DB || 'instock',
+          ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
         }
       ),
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
