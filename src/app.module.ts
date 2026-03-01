@@ -17,23 +17,37 @@ const databaseUrl =
   process.env.DATABASE_PRIVATE_URL ||
   process.env.POSTGRES_URL;
 
+const hasDbHost =
+  !!process.env.DB_HOST || !!process.env.PGHOST || !!process.env.POSTGRES_HOST;
+const hasDbPort =
+  !!process.env.DB_PORT || !!process.env.PGPORT || !!process.env.POSTGRES_PORT;
+const hasDbUser =
+  !!process.env.DB_USERNAME || !!process.env.PGUSER || !!process.env.POSTGRES_USER;
+const hasDbPassword =
+  !!process.env.DB_PASSWORD || !!process.env.PGPASSWORD || !!process.env.POSTGRES_PASSWORD;
+const hasDbName =
+  !!process.env.DB_DATABASE || !!process.env.PGDATABASE || !!process.env.POSTGRES_DB;
+
+console.log('=== ENV DEBUG ===');
+console.log('DATABASE_URL exists:', !!databaseUrl);
+console.log('DB_HOST/PGHOST exists:', hasDbHost);
+console.log('DB_PORT/PGPORT exists:', hasDbPort);
+console.log('DB_USERNAME/PGUSER exists:', hasDbUser);
+console.log('DB_PASSWORD/PGPASSWORD exists:', hasDbPassword);
+console.log('DB_DATABASE/PGDATABASE exists:', hasDbName);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT);
+console.log('=================');
+
 if (
   process.env.NODE_ENV === 'production' &&
   !databaseUrl &&
-  !process.env.DB_HOST &&
-  !process.env.PGHOST &&
-  !process.env.POSTGRES_HOST
+  !hasDbHost
 ) {
   throw new Error(
     'Database is not configured. Set DATABASE_URL (recommended) or DB_HOST/DB_PORT/DB_USERNAME/DB_PASSWORD/DB_DATABASE.'
   );
 }
-
-console.log('=== ENV DEBUG ===');
-console.log('DATABASE_URL exists:', !!databaseUrl);
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('PORT:', process.env.PORT);
-console.log('=================');
 
 @Module({
   imports: [
