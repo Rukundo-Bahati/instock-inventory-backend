@@ -18,6 +18,8 @@ async function bootstrap() {
       'https://instock-back.onrender.com',
       /^https:\/\/.*\.onrender\.com$/,
       /^https:\/\/.*\.vercel\.app$/,
+      /^https:\/\/.*\.railway\.app$/,
+      /^https:\/\/.*\.up\.railway\.app$/,
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -34,11 +36,11 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   const port = process.env.PORT ?? 3001;
-  console.log(`🚀 Server starting on port ${port}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV}`);
-  console.log(`🔑 JWT Secret configured: ${!!process.env.JWT_SECRET}`);
-  console.log(`📧 Email configured: ${!!process.env.EMAIL_USER}`);
-  console.log(`🗄️ Database URL configured: ${!!process.env.DATABASE_URL}`);
+  console.log(` Server starting on port ${port}`);
+  console.log(` Environment: ${process.env.NODE_ENV}`);
+  console.log(` JWT Secret configured: ${!!process.env.JWT_SECRET}`);
+  console.log(` Email configured: ${!!process.env.EMAIL_USER}`);
+  console.log(` Database URL configured: ${!!process.env.DATABASE_URL}`);
 
   await app.listen(port, '0.0.0.0');
 }

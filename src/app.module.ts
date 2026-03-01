@@ -12,23 +12,32 @@ import { ItemsModule } from './items/items.module';
 import { LogsModule } from './logs/logs.module';
 import { CompanyInfoModule } from './company-info/company-info.module';
 
+console.log('=== ENV DEBUG ===');
+console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT);
+console.log('=================');
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      ...(process.env.DATABASE_URL 
-        ? { url: process.env.DATABASE_URL }
+      ...(process.env.DATABASE_URL
+        ? {
+          url: process.env.DATABASE_URL,
+          ssl: { rejectUnauthorized: false }
+        }
         : {
-            host: process.env.DB_HOST || 'localhost',
-            port: parseInt(process.env.DB_PORT || '5432', 10),
-            username: process.env.DB_USERNAME || 'postgres',
-            password: process.env.DB_PASSWORD || 'postgres',
-            database: process.env.DB_DATABASE || 'instock',
-          }
+          host: process.env.DB_HOST || 'localhost',
+          port: parseInt(process.env.DB_PORT || '5432', 10),
+          username: process.env.DB_USERNAME || 'postgres',
+          password: process.env.DB_PASSWORD || 'postgres',
+          database: process.env.DB_DATABASE || 'instock',
+          ssl: false,
+        }
       ),
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: process.env.NODE_ENV !== 'production',
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      synchronize: true, // Auto-create tables on first run
       logging: process.env.NODE_ENV !== 'production',
     }),
     MailerModule.forRoot({
@@ -44,7 +53,6 @@ import { CompanyInfoModule } from './company-info/company-info.module';
           rejectUnauthorized: false,
         },
       } : {
-        // Fallback configuration for when email is not configured
         streamTransport: true,
         newline: 'unix',
         buffer: true,

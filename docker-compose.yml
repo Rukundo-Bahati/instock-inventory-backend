@@ -6,22 +6,12 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - "${PORT:-3001}:${PORT:-3001}"
+    env_file:
+      - .env
     environment:
-      - NODE_ENV=development
-      - PORT=3001
+      # Override for Docker network - use service name as host
       - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=postgres
-      - DB_DATABASE=instock
-      - JWT_SECRET=supersecretkey
-      - EMAIL_HOST=smtp.gmail.com
-      - EMAIL_PORT=587
-      - EMAIL_SECURE=false
-      - EMAIL_USER=shammahhirwa19@gmail.com
-      - EMAIL_PASS=zmsh owkx vipq otru
-      - FRONTEND_URL=https://instock-inventory-pro.vercel.app
     volumes:
       - ./src:/usr/src/app/src
       - ./package.json:/usr/src/app/package.json
@@ -36,9 +26,9 @@ services:
     ports:
       - "5434:5432"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=instock
+      - POSTGRES_USER=${DB_USERNAME:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${DB_DATABASE:-instock}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
