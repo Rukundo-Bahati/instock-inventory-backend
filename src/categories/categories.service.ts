@@ -14,8 +14,16 @@ export class CategoriesService {
         private logsService: LogsService,
     ) {}
 
-    async findAll(): Promise<Category[]> {
-        return this.categoriesRepository.find({ order: { name: 'ASC' } });
+    async findAll(userId?: string, userRole?: string): Promise<Category[]> {
+        const queryBuilder = this.categoriesRepository.createQueryBuilder('category');
+        
+        // Regular users only see their own categories and active ones
+        if (userRole !== 'admin' && userId) {
+            queryBuilder.where('category.createdBy = :userId', { userId });
+            queryBuilder.andWhere('category.isActive = :isActive', { isActive: true });
+        }
+        
+        return queryBuilder.orderBy('category.name', 'ASC').getMany();
     }
 
     async findOne(id: string): Promise<Category> {
@@ -31,7 +39,10 @@ export class CategoriesService {
         if (existing) {
             throw new ConflictException('Category with this name already exists');
         }
-        const category = this.categoriesRepository.create(createCategoryDto);
+        const category = this.categoriesRepository.create({
+            ...createCategoryDto,
+            createdBy: userId,
+        });
         const savedCategory = await this.categoriesRepository.save(category);
         
         // Log the action
@@ -79,5 +90,23 @@ export class CategoriesService {
             userName,
             userRole,
         });
+    }
+
+    async toggleActive(id: string, userId?: string, userEmail?: string, userName?: string, userRole?: string): Promise<Category> {
+        const category = await this.findOne(id);
+        category.isActive = !category.isActive;
+        const updatedCategory = await this.categoriesRepository.save(category);
+        
+        // Log the action
+        await this.logsService.create({
+            userId,
+            action: 'category_toggle',
+            details: `${updatedCategory.isActive ? 'Activated' : 'Deactivated'} category: ${updatedCategory.name}`,
+            userEmail,
+            userName,
+            userRole,
+        });
+        
+        return updatedCategory;
     }
 }

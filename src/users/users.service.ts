@@ -84,4 +84,83 @@ export class UsersService {
             await this.usersRepository.save(user);
         }
     }
+
+    // Admin-only methods for user management
+    async findAll(): Promise<User[]> {
+        return this.usersRepository.find({ 
+            select: ['id', 'username', 'email', 'firstName', 'lastName', 'roles', 'isActive'],
+            order: { email: 'ASC' } 
+        });
+    }
+
+    async findById(id: string): Promise<User | null> {
+        return this.usersRepository.findOne({ 
+            where: { id },
+            select: ['id', 'username', 'email', 'firstName', 'lastName', 'roles', 'isActive']
+        });
+    }
+
+    async updateUser(id: string, updateData: Partial<User>, adminId?: string, adminEmail?: string, adminName?: string, adminRole?: string): Promise<User> {
+        const user = await this.usersRepository.findOne({ where: { id } });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        
+        Object.assign(user, updateData);
+        const updatedUser = await this.usersRepository.save(user);
+        
+        // Log the action
+        await this.logsService.create({
+            userId: adminId,
+            action: 'user_update',
+            details: `Updated user: ${updatedUser.email}`,
+            userEmail: adminEmail,
+            userName: adminName,
+            userRole: adminRole,
+        });
+        
+        return updatedUser;
+    }
+
+    async toggleActive(id: string, adminId?: string, adminEmail?: string, adminName?: string, adminRole?: string): Promise<User> {
+        const user = await this.usersRepository.findOne({ where: { id } });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        
+        user.isActive = !user.isActive;
+        const updatedUser = await this.usersRepository.save(user);
+        
+        // Log the action
+        await this.logsService.create({
+            userId: adminId,
+            action: 'user_toggle',
+            details: `${updatedUser.isActive ? 'Activated' : 'Deactivated'} user: ${updatedUser.email}`,
+            userEmail: adminEmail,
+            userName: adminName,
+            userRole: adminRole,
+        });
+        
+        return updatedUser;
+    }
+
+    async deleteUser(id: string, adminId?: string, adminEmail?: string, adminName?: string, adminRole?: string): Promise<void> {
+        const user = await this.usersRepository.findOne({ where: { id } });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        
+        const userEmail = user.email;
+        await this.usersRepository.remove(user);
+        
+        // Log the action
+        await this.logsService.create({
+            userId: adminId,
+            action: 'user_delete',
+            details: `Deleted user: ${userEmail}`,
+            userEmail: adminEmail,
+            userName: adminName,
+            userRole: adminRole,
+        });
+    }
 }

@@ -17,6 +17,9 @@ export class Item {
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     price: number;
 
+    @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+    cost: number;
+
     @Column({ type: 'int', default: 0 })
     quantity: number;
 
@@ -37,6 +40,9 @@ export class Item {
 
     @Column({ default: 'active' })
     status: string;
+
+    @Column({ type: 'uuid', nullable: true })
+    createdBy: string;
 
     @CreateDateColumn()
     createdAt: Date;

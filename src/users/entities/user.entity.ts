@@ -23,6 +23,9 @@ export class User {
     @Column({ default: 'user' })
     roles: string;
 
+    @Column({ default: true })
+    isActive: boolean;
+
     @Column({ nullable: true, type: 'varchar' })
     resetToken: string | null;
 

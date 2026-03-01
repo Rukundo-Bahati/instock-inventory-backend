@@ -11,20 +11,34 @@ export class MovementsService {
         private movementsRepository: Repository<Movement>,
     ) {}
 
-    async findAll(): Promise<Movement[]> {
-        return this.movementsRepository.find({ 
-            relations: ['item'],
-            order: { createdAt: 'DESC' }, 
-            take: 100 
-        });
+    async findAll(userId?: string, userRole?: string): Promise<Movement[]> {
+        const queryBuilder = this.movementsRepository
+            .createQueryBuilder('movement')
+            .leftJoinAndSelect('movement.item', 'item')
+            .orderBy('movement.createdAt', 'DESC')
+            .take(100);
+        
+        // Regular users only see their own movements
+        if (userRole !== 'admin' && userId) {
+            queryBuilder.where('movement.userId = :userId', { userId });
+        }
+        
+        return queryBuilder.getMany();
     }
 
-    async findByItem(itemId: string): Promise<Movement[]> {
-        return this.movementsRepository.find({ 
-            where: { itemId }, 
-            relations: ['item'],
-            order: { createdAt: 'DESC' } 
-        });
+    async findByItem(itemId: string, userId?: string, userRole?: string): Promise<Movement[]> {
+        const queryBuilder = this.movementsRepository
+            .createQueryBuilder('movement')
+            .leftJoinAndSelect('movement.item', 'item')
+            .where('movement.itemId = :itemId', { itemId })
+            .orderBy('movement.createdAt', 'DESC');
+        
+        // Regular users only see their own movements
+        if (userRole !== 'admin' && userId) {
+            queryBuilder.andWhere('movement.userId = :userId', { userId });
+        }
+        
+        return queryBuilder.getMany();
     }
 
     async findOne(id: string): Promise<Movement> {

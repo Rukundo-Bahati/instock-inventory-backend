@@ -14,8 +14,20 @@ export class ItemsService {
         private logsService: LogsService,
     ) {}
 
-    async findAll(): Promise<Item[]> {
-        return this.itemsRepository.find({ order: { createdAt: 'DESC' } });
+    async findAll(userId?: string, userRole?: string): Promise<Item[]> {
+        const queryBuilder = this.itemsRepository.createQueryBuilder('item');
+        
+        // Regular users only see their own items
+        if (userRole !== 'admin' && userId) {
+            queryBuilder.where('item.createdBy = :userId', { userId });
+        }
+        
+        // Filter active items for regular users
+        if (userRole !== 'admin') {
+            queryBuilder.andWhere('item.status = :status', { status: 'active' });
+        }
+        
+        return queryBuilder.orderBy('item.createdAt', 'DESC').getMany();
     }
 
     async findOne(id: string): Promise<Item> {
@@ -35,7 +47,10 @@ export class ItemsService {
         if (existing) {
             throw new ConflictException('Item with this SKU already exists');
         }
-        const item = this.itemsRepository.create(createItemDto);
+        const item = this.itemsRepository.create({
+            ...createItemDto,
+            createdBy: userId,
+        });
         const savedItem = await this.itemsRepository.save(item);
         
         // Log the action
@@ -94,19 +109,30 @@ export class ItemsService {
         });
     }
 
-    async getLowStock(): Promise<Item[]> {
-        return this.itemsRepository
+    async getLowStock(userId?: string, userRole?: string): Promise<Item[]> {
+        const queryBuilder = this.itemsRepository
             .createQueryBuilder('item')
             .where('item.quantity <= item.minStock')
-            .andWhere('item.quantity > 0')
-            .orderBy('item.quantity', 'ASC')
-            .getMany();
+            .andWhere('item.quantity > 0');
+        
+        // Regular users only see their own items
+        if (userRole !== 'admin' && userId) {
+            queryBuilder.andWhere('item.createdBy = :userId', { userId });
+        }
+        
+        return queryBuilder.orderBy('item.quantity', 'ASC').getMany();
     }
 
-    async getOutOfStock(): Promise<Item[]> {
-        return this.itemsRepository.find({ 
-            where: { quantity: 0 },
-            order: { name: 'ASC' }
-        });
+    async getOutOfStock(userId?: string, userRole?: string): Promise<Item[]> {
+        const queryBuilder = this.itemsRepository
+            .createQueryBuilder('item')
+            .where('item.quantity = 0');
+        
+        // Regular users only see their own items
+        if (userRole !== 'admin' && userId) {
+            queryBuilder.andWhere('item.createdBy = :userId', { userId });
+        }
+        
+        return queryBuilder.orderBy('item.name', 'ASC').getMany();
     }
 }

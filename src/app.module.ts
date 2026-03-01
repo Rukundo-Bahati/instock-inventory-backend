@@ -10,6 +10,7 @@ import { LocationsModule } from './locations/locations.module';
 import { MovementsModule } from './movements/movements.module';
 import { ItemsModule } from './items/items.module';
 import { LogsModule } from './logs/logs.module';
+import { CompanyInfoModule } from './company-info/company-info.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { LogsModule } from './logs/logs.module';
     MovementsModule,
     ItemsModule,
     LogsModule,
+    CompanyInfoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

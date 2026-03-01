@@ -14,6 +14,12 @@ export class Category {
     @Column({ default: '#3B82F6' })
     color: string;
 
+    @Column({ default: true })
+    isActive: boolean;
+
+    @Column({ type: 'uuid', nullable: true })
+    createdBy: string;
+
     @CreateDateColumn()
     createdAt: Date;
 

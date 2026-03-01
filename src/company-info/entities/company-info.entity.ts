@@ -1,24 +1,27 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
-export class Location {
+export class CompanyInfo {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column()
-    name: string;
+    companyName: string;
 
     @Column()
+    email: string;
+
+    @Column()
+    phone: string;
+
+    @Column({ type: 'text' })
     address: string;
 
-    @Column({ default: 'warehouse' })
-    type: string;
+    @Column({ nullable: true })
+    website: string;
 
-    @Column({ default: true })
-    isActive: boolean;
-
-    @Column({ type: 'uuid', nullable: true })
-    createdBy: string;
+    @Column({ type: 'text', nullable: true })
+    description: string;
 
     @CreateDateColumn()
     createdAt: Date;

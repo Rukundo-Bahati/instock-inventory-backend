@@ -1,9 +1,12 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Patch } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -13,8 +16,8 @@ export class CategoriesController {
     constructor(private readonly categoriesService: CategoriesService) {}
 
     @Get()
-    findAll() {
-        return this.categoriesService.findAll();
+    findAll(@CurrentUser() user: any) {
+        return this.categoriesService.findAll(user.id, user.roles);
     }
 
     @Get(':id')
@@ -23,36 +26,49 @@ export class CategoriesController {
     }
 
     @Post()
-    create(@Body() createCategoryDto: CreateCategoryDto, @Request() req) {
+    create(@Body() createCategoryDto: CreateCategoryDto, @CurrentUser() user: any) {
         return this.categoriesService.create(
             createCategoryDto,
-            req.user.id,
-            req.user.email,
-            req.user.email,
-            req.user.roles,
+            user.id,
+            user.email,
+            user.email,
+            user.roles,
         );
     }
 
     @Put(':id')
-    update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto, @Request() req) {
+    update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto, @CurrentUser() user: any) {
         return this.categoriesService.update(
             id,
             updateCategoryDto,
-            req.user.id,
-            req.user.email,
-            req.user.email,
-            req.user.roles,
+            user.id,
+            user.email,
+            user.email,
+            user.roles,
         );
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string, @Request() req) {
+    remove(@Param('id') id: string, @CurrentUser() user: any) {
         return this.categoriesService.remove(
             id,
-            req.user.id,
-            req.user.email,
-            req.user.email,
-            req.user.roles,
+            user.id,
+            user.email,
+            user.email,
+            user.roles,
+        );
+    }
+
+    @Patch(':id/toggle-active')
+    @UseGuards(RolesGuard)
+    @Roles('admin')
+    toggleActive(@Param('id') id: string, @CurrentUser() user: any) {
+        return this.categoriesService.toggleActive(
+            id,
+            user.id,
+            user.email,
+            user.email,
+            user.roles,
         );
     }
 }

@@ -4,6 +4,7 @@ import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CurrentUser } from '../auth/current-user.decorator';
 
 @ApiTags('items')
 @Controller('items')
@@ -13,18 +14,18 @@ export class ItemsController {
     constructor(private readonly itemsService: ItemsService) {}
 
     @Get()
-    findAll() {
-        return this.itemsService.findAll();
+    findAll(@CurrentUser() user: any) {
+        return this.itemsService.findAll(user.id, user.roles);
     }
 
     @Get('low-stock')
-    getLowStock() {
-        return this.itemsService.getLowStock();
+    getLowStock(@CurrentUser() user: any) {
+        return this.itemsService.getLowStock(user.id, user.roles);
     }
 
     @Get('out-of-stock')
-    getOutOfStock() {
-        return this.itemsService.getOutOfStock();
+    getOutOfStock(@CurrentUser() user: any) {
+        return this.itemsService.getOutOfStock(user.id, user.roles);
     }
 
     @Get(':id')
@@ -33,36 +34,36 @@ export class ItemsController {
     }
 
     @Post()
-    create(@Body() createItemDto: CreateItemDto, @Request() req) {
+    create(@Body() createItemDto: CreateItemDto, @CurrentUser() user: any) {
         return this.itemsService.create(
             createItemDto,
-            req.user.id,
-            req.user.email,
-            req.user.email,
-            req.user.roles,
+            user.id,
+            user.email,
+            user.email,
+            user.roles,
         );
     }
 
     @Put(':id')
-    update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto, @Request() req) {
+    update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto, @CurrentUser() user: any) {
         return this.itemsService.update(
             id,
             updateItemDto,
-            req.user.id,
-            req.user.email,
-            req.user.email,
-            req.user.roles,
+            user.id,
+            user.email,
+            user.email,
+            user.roles,
         );
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string, @Request() req) {
+    remove(@Param('id') id: string, @CurrentUser() user: any) {
         return this.itemsService.remove(
             id,
-            req.user.id,
-            req.user.email,
-            req.user.email,
-            req.user.roles,
+            user.id,
+            user.email,
+            user.email,
+            user.roles,
         );
     }
 }
