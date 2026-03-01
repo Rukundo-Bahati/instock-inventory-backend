@@ -25,7 +25,7 @@ console.log('=================');
       ...(process.env.DATABASE_URL
         ? {
           url: process.env.DATABASE_URL,
-          ssl: { rejectUnauthorized: false }
+          ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
         }
         : {
           host: process.env.DB_HOST || 'localhost',
